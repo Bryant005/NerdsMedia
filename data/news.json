@@ -1,0 +1,20 @@
+[
+  {
+    "id":"n1",
+    "title":"New RPG announcement shakes the community",
+    "slug":"rpg-announced",
+    "date":"2025-06-01",
+    "excerpt":"A new open-world RPG announces its systems and trailer.",
+    "content":"<p>The studio released a cinematic trailer and details...</p>",
+    "author":"Editor"
+  },
+  {
+    "id":"n2",
+    "title":"Patch notes for MegaShooter 2.4",
+    "slug":"megashooter-patch-2-4",
+    "date":"2025-06-03",
+    "excerpt":"Balance changes, new map, and bug fixes.",
+    "content":"<p>Major balance changes and the new seasonal map...</p>",
+    "author":"NewsBot"
+  }
+]
