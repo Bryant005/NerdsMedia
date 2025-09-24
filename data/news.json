@@ -4,9 +4,9 @@
     "title": "My Awesome New Article",
     "slug": "my-awesome-article",
     "date": "2025-09-24",
-    "thumbnail": "images/my-cool-article.jpg",
+    "thumbnail": "my-cool-article.jpg",
     "excerpt": "This is a short summary of my awesome new article.",
-    "content": "<p>This is the full content of the article. You can have multiple paragraphs.</p><p>This is a second paragraph.</p>",
+    "content": "<p>This is the full text for the article. When you click the link, this is the text that will appear on the page.</p><p>You can add more paragraphs by using more p tags. This helps with formatting and readability.</p>",
     "author": "Your Name"
   },
   {
