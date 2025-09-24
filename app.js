@@ -107,18 +107,41 @@ function renderHome() {
     </section>
   `;
 
+  // --- THIS IS THE UPDATED LOGIC FOR THE HOMEPAGE FEED ---
   const newsList = document.getElementById('newsList');
-  NEWS.slice().reverse().slice(0, 6).forEach(n => {
+  // 1. Combine news and videos into one feed
+  const combinedFeed = [...NEWS, ...VIDEOS];
+  // 2. Sort the combined feed by date, newest first
+  combinedFeed.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // 3. Take the 6 most recent items and display them
+  combinedFeed.slice(0, 6).forEach(item => {
     const el = document.createElement('article');
     el.className = 'card news-card small';
+    
+    let link = '#';
+    let meta = '';
+
+    // Check if the item is a news article (we'll assume it is if it has an author)
+    if (item.author) {
+      link = `#news/${item.id}`;
+      meta = `${item.date} • ${item.author}`;
+    } 
+    // Otherwise, assume it's a video
+    else {
+      link = '#videos';
+      meta = `${item.date} • Video`;
+    }
+
     el.innerHTML = `
-      ${n.thumbnail ? `<img src="${getImagePath(n.thumbnail)}" alt="" class="news-thumbnail">` : ''}
+      ${item.thumbnail ? `<img src="${getImagePath(item.thumbnail)}" alt="" class="news-thumbnail">` : ''}
       <div class="news-card-content">
-        <h3><a href="#news/${n.id}" target="_blank">${escapeHtml(n.title)}</a></h3>
-        <p class="meta">${n.date} • ${n.author || 'Community'}</p>
+        <h3><a href="${link}" target="_blank">${escapeHtml(item.title)}</a></h3>
+        <p class="meta">${meta}</p>
       </div>`;
     newsList.appendChild(el);
   });
+  // --- END OF UPDATED LOGIC ---
 
   // Wire forms
   document.getElementById('newsForm').addEventListener('submit', async e => {
