@@ -1,56 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gaming Site</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <a href="#">
-        <span class="logo">GG</span>
-        <span class="sitename">Gaming Site</span>
-      </a>
-    </div>
-    <nav class="mainnav">
-      <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Games</a></li>
-        <li><a href="#">News</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </nav>
-    <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
-    <div class="search">
-      <input type="search" placeholder="Search games" aria-label="Search games" />
-    </div>
-  </header>
-
-  <main id="app">
-    <section class="hero">
-      <div class="card">
-        <h1 class="headline">Welcome to Gaming Site</h1>
-        <p class="meta">Your daily dose of gaming news</p>
-      </div>
-      <div class="card">
-        <p>Featured Video</p>
-        <div class="video-thumb">[Video Thumbnail]</div>
-      </div>
-    </section>
-    <section class="grid">
-      <div class="card">Game 1</div>
-      <div class="card">Game 2</div>
-      <div class="card">Game 3</div>
-      <div class="card">Game 4</div>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 Gaming Site. All rights reserved.</p>
-  </footer>
-
-  <script src="script.js"></script>
-</body>
-</html>
+<html lang="en"> 
+  <head> <meta charset="utf-8"> 
+    <meta name="viewport" content="width=device-width,initial-scale=1"> 
+    <meta name="description" content="NerdsMedia — community-driven gaming news, videos and gallery. Powered by duct type."> 
+    <title>NerdMedia — Home</title> <link rel="stylesheet" href="styles.css"> 
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- tiny placeholder --> 
+  </head> <body> <header class="topbar" role="banner"> <div class="brand"> <a href="#home" aria-label="Go to homepage"><span class="logo">NM</span><span class="sitename">NerdMeida</span></a> </div> <nav class="mainnav" role="navigation" aria-label="Main navigation"> <button class="nav-toggle" aria-expanded="false" aria-controls="nav-list">☰</button> <ul id="nav-list"> <li><a href="#home">Home</a></li> <li><a href="#news">News</a></li> <li><a href="#videos">Videos</a></li> <li><a href="#gallery">Gallery</a></li> <li><a href="#about">About</a></li> </ul> </nav> <div class="search"> <input id="searchInput" type="search" placeholder="Search articles, videos..." aria-label="Search site"> </div> </header> <main id="app" tabindex="0"> <!-- Content injected by app.js --> </main> <footer> <div class="footinner"> <p>&copy; <span id="year"></span> NerdsMeida — Creative, cool, accessible & totally not inspired by another gaming news giant.</p> <div class="social"> <a href="https://www.youtube.com/@bupawampa" aria-label="Follow on YouTube">YouTube</a> <p> The best channel made by a kids dreams</p> </div> </div> </footer> <script src="app.js" defer></script> </body> </html>
