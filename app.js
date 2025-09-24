@@ -59,7 +59,7 @@ function navigate() {
 
 // --------- Rendering functions (same as before) ---------
 function renderHome() {
-  document.title = 'GamingNewsSite — Home';
+  document.title = 'NerdMedia — Home';
   app.innerHTML = `
     <section class="hero">
       <div class="card">
@@ -164,7 +164,7 @@ function renderHome() {
 }
 
 function renderNewsList() {
-  document.title = 'GamingNewsSite — News';
+  document.title = 'NerdsMediaNews — News';
   app.innerHTML = `<section class="card"><h1 class="headline">News</h1><div id="newsGrid" class="grid" role="list"></div></section>`;
   const grid = document.getElementById('newsGrid');
   NEWS.slice().reverse().forEach(n => {
@@ -179,12 +179,12 @@ function renderNewsList() {
 function renderNewsPost(id) {
   const post = NEWS.find(n => n.id === id);
   if (!post) return renderNotFound();
-  document.title = `${post.title} — GamingNewsSite`;
+  document.title = `${post.title} — NerdsMedia`;
   app.innerHTML = `<article class="card"><h1>${escapeHtml(post.title)}</h1><p class="meta">${post.date} • ${post.author || 'Community'}</p><div class="content">${post.content || ''}</div></article>`;
 }
 
 function renderVideos() {
-  document.title = 'GamingNewsSite — Videos';
+  document.title = 'NerdsMedia — Videos';
   app.innerHTML = `<section class="card"><h1 class="headline">Videos</h1><div id="videoGrid" class="grid"></div></section>`;
   const grid = document.getElementById('videoGrid');
   VIDEOS.slice().reverse().forEach(v => {
@@ -196,7 +196,7 @@ function renderVideos() {
 }
 
 function renderGallery() {
-  document.title = 'GamingNewsSite — Gallery';
+  document.title = 'NerdsMedia — Gallery';
   app.innerHTML = `<section class="card"><h1 class="headline">Gallery</h1><div id="galleryGrid" class="grid" role="list"></div></section>`;
   const grid = document.getElementById('galleryGrid');
   GALLERY.slice().reverse().forEach(it => {
@@ -213,17 +213,17 @@ function renderGallery() {
 }
 
 function renderAbout() {
-  document.title = 'About — GamingNewsSite';
-  app.innerHTML = `<section class="card"><h1 class="headline">About</h1><p>This is a community-first gaming news site built as a static template you can host on GitHub Pages. It uses client-side storage to allow local publishing and uploads. See README for deployment steps.</p></section>`;
+  document.title = 'About — NerdsMeida';
+  app.innerHTML = `<section class="card"><h1 class="headline">About</h1><p>This is a community-first gaming news site built as a static template you can host on GitHub Pages. It uses client-side storage to allow local publishing and uploads.</p></section>`;
 }
 
 function renderNotFound() {
-  document.title = 'Not Found — GamingNewsSite';
-  app.innerHTML = `<section class="card"><h1>404 — Not Found</h1><p>The page you're looking for doesn't exist.</p></section>`;
+  document.title = 'Not Found — NerdsMeida';
+  app.innerHTML = `<section class="card"><h1>404 — Not Found</h1><p>Sorry, It seems that this place was looted, such a shame.</p></section>`;
 }
 
 function renderSearchResults(items, q) {
-  document.title = `Search: ${q} — GamingNewsSite`;
+  document.title = `Search: ${q} — NerdsMeida`;
   app.innerHTML = `<section class="card"><h1>Search results for "${escapeHtml(q)}"</h1><div id="searchGrid" class="grid"></div></section>`;
   const grid = document.getElementById('searchGrid');
   items.forEach(it => {
