@@ -1,3 +1,11 @@
+/* app.js — routing, rendering, and client-side "serverless" content storage
+   Features:
+   - Hash routing for 5 pages (home, news, videos, gallery, about)
+   - Loads sample JSON files (local copies provided) then merges with localStorage user uploads
+   - Allows uploading images/videos and publishing news posts without a server (stored in localStorage)
+   - Accessibility hints & simple SEO-friendly markup
+*/
+
 const app = document.getElementById('app');
 const yearEl = document.getElementById('year');
 yearEl.textContent = new Date().getFullYear();
@@ -49,8 +57,7 @@ function navigate() {
   page(id);
 }
 
-// --------- Rendering functions ---------
-
+// --------- Rendering functions (same as before) ---------
 function renderHome() {
   document.title = 'NerdMedia — Home';
   app.innerHTML = `
@@ -62,7 +69,7 @@ function renderHome() {
       </div>
       <aside class="card">
         <h3>Upload & Publish</h3>
-        <p class="small">Upload images, videos, or post a news article — stored locally and shown to everyone who visits this site on this device.</p>
+        <p class="small">Upload images, videos, or post a news article — stored locally and shown to everyone who visits this site on this device (or uploaded files embedded in your repo will be used on GitHub Pages).</p>
         <details>
           <summary>Publish News</summary>
           <form id="newsForm">
@@ -103,24 +110,12 @@ function renderHome() {
     </section>
   `;
 
+  // populate news list
   const newsList = document.getElementById('newsList');
   NEWS.slice().reverse().slice(0, 6).forEach(n => {
-    const thumbnail = n.thumbnail
-      ? `<div class="news-thumbnail-container"><img src="${n.thumbnail}" alt="${escapeHtml(n.title)}" class="news-thumbnail"></div>`
-      : '';
-    const html = `
-      <div class="news-card">
-        ${thumbnail}
-        <div class="news-content">
-          <h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3>
-          <p class="meta">${n.date} • ${n.author || 'Community'}</p>
-          <p>${n.excerpt || excerptFrom(n.content)}</p>
-        </div>
-      </div>
-    `;
     const el = document.createElement('article');
     el.className = 'card small';
-    el.innerHTML = html;
+    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
     newsList.appendChild(el);
   });
 
@@ -131,17 +126,10 @@ function renderHome() {
     const content = document.getElementById('nContent').value.trim();
     const author = document.getElementById('nAuthor').value.trim() || 'Community';
     if (!title) return alert('Title required');
-    const item = {
-      id: 'n' + Date.now(),
-      title,
-      content,
-      excerpt: excerptFrom(content),
-      date: new Date().toISOString().slice(0, 10),
-      author,
-      thumbnail: null  // You can extend form to accept thumbnail URLs
-    };
+    const item = { id: 'n' + Date.now(), title, content, excerpt: excerptFrom(content), date: new Date().toISOString().slice(0, 10), author };
     NEWS.push(item);
     writeStored(STORAGE_KEYS.news, NEWS);
+    alert('Published locally. To publish globally, add your news.json file to repo/data.');
     location.hash = '#news';
   });
 
@@ -152,17 +140,10 @@ function renderHome() {
     const title = document.getElementById('imgTitle').value || file.name;
     const desc = document.getElementById('imgDesc').value || '';
     const b64 = await fileToDataURL(file);
-    const item = {
-      id: 'g' + Date.now(),
-      type: 'image',
-      title,
-      src: b64,
-      alt: title,
-      desc,
-      date: new Date().toISOString().slice(0, 10)
-    };
+    const item = { id: 'g' + Date.now(), type: 'image', title, src: b64, alt: title, desc, date: new Date().toISOString().slice(0, 10) };
     GALLERY.push(item);
     writeStored(STORAGE_KEYS.gallery, GALLERY);
+    alert('Image uploaded locally and added to gallery');
     location.hash = '#gallery';
   });
 
@@ -174,15 +155,10 @@ function renderHome() {
     if (!file && !link) return alert('Provide a video file or link');
     let src = link;
     if (file) { src = await fileToDataURL(file); }
-    const item = {
-      id: 'v' + Date.now(),
-      title,
-      src,
-      date: new Date().toISOString().slice(0, 10),
-      excerpt: ''
-    };
+    const item = { id: 'v' + Date.now(), title, src, date: new Date().toISOString().slice(0, 10), excerpt: '' };
     VIDEOS.push(item);
     writeStored(STORAGE_KEYS.videos, VIDEOS);
+    alert('Video added locally');
     location.hash = '#videos';
   });
 }
@@ -191,25 +167,11 @@ function renderNewsList() {
   document.title = 'NerdsMediaNews — News';
   app.innerHTML = `<section class="card"><h1 class="headline">News</h1><div id="newsGrid" class="grid" role="list"></div></section>`;
   const grid = document.getElementById('newsGrid');
-
   NEWS.slice().reverse().forEach(n => {
-    const thumbnail = n.thumbnail
-      ? `<div class="news-thumbnail-container"><img src="${n.thumbnail}" alt="${escapeHtml(n.title)}" class="news-thumbnail"></div>`
-      : '';
-    const html = `
-      <div class="news-card">
-        ${thumbnail}
-        <div class="news-content">
-          <h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3>
-          <p class="meta">${n.date} • ${n.author || 'Community'}</p>
-          <p>${n.excerpt || excerptFrom(n.content)}</p>
-        </div>
-      </div>
-    `;
     const el = document.createElement('article');
     el.setAttribute('role', 'listitem');
     el.className = 'card';
-    el.innerHTML = html;
+    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
     grid.appendChild(el);
   });
 }
@@ -218,23 +180,7 @@ function renderNewsPost(id) {
   const post = NEWS.find(n => n.id === id);
   if (!post) return renderNotFound();
   document.title = `${post.title} — NerdsMedia`;
-
-  const thumbHtml = post.thumbnail
-    ? `<div class="news-thumbnail-container"><img src="${post.thumbnail}" alt="${escapeHtml(post.title)}" class="news-thumbnail"></div>`
-    : '';
-
-  app.innerHTML = `
-    <article class="card">
-      <div class="news-post">
-        ${thumbHtml}
-        <div class="news-content">
-          <h1>${escapeHtml(post.title)}</h1>
-          <p class="meta">${post.date} • ${post.author || 'Community'}</p>
-          <div class="content">${post.content || ''}</div>
-        </div>
-      </div>
-    </article>
-  `;
+  app.innerHTML = `<article class="card"><h1>${escapeHtml(post.title)}</h1><p class="meta">${post.date} • ${post.author || 'Community'}</p><div class="content">${post.content || ''}</div></article>`;
 }
 
 function renderVideos() {
@@ -244,13 +190,7 @@ function renderVideos() {
   VIDEOS.slice().reverse().forEach(v => {
     const el = document.createElement('div');
     el.className = 'card';
-    el.innerHTML = `
-      <h3>${escapeHtml(v.title)}</h3>
-      <div class="video-thumb">
-        ${v.src ? `<video controls src="${v.src}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"></video>` : ''}
-      </div>
-      <p class="meta">${v.date}</p>
-    `;
+    el.innerHTML = `<h3>${escapeHtml(v.title)}</h3><div class="video-thumb">${v.src ? `<video controls src="${v.src}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"></video>` : ''}</div><p class="meta">${v.date}</p>`;
     grid.appendChild(el);
   });
 }
@@ -264,60 +204,37 @@ function renderGallery() {
     el.className = 'card';
     el.setAttribute('role', 'listitem');
     if (it.type === 'image') {
-      el.innerHTML = `
-        <img src="${it.src}" alt="${escapeHtml(it.alt || it.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:6px">
-        <figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>
-      `;
+      el.innerHTML = `<img src="${it.src}" alt="${escapeHtml(it.alt || it.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"><figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
     } else {
-      el.innerHTML = `
-        <figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>
-      `;
+      el.innerHTML = `<figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
     }
     grid.appendChild(el);
   });
 }
 
 function renderAbout() {
-  document.title = 'About — NerdsMedia';
-  app.innerHTML = `
-    <section class="card">
-      <h1 class="headline">About</h1>
-      <p>This is a community-first gaming news site built as a static template you can host on GitHub Pages. It uses client-side storage to allow local publishing and uploads.</p>
-    </section>
-  `;
+  document.title = 'About — NerdsMeida';
+  app.innerHTML = `<section class="card"><h1 class="headline">About</h1><p>This is a community-first gaming news site built as a static template you can host on GitHub Pages. It uses client-side storage to allow local publishing and uploads.</p></section>`;
 }
 
 function renderNotFound() {
-  document.title = 'Not Found — NerdsMedia';
-  app.innerHTML = `
-    <section class="card">
-      <h1>404 — Not Found</h1>
-      <p>Sorry, we couldn’t find what you were looking for.</p>
-    </section>
-  `;
+  document.title = 'Not Found — NerdsMeida';
+  app.innerHTML = `<section class="card"><h1>404 — Not Found</h1><p>Sorry, It seems that this place was looted, such a shame.</p></section>`;
 }
 
 function renderSearchResults(items, q) {
-  document.title = `Search: ${q} — NerdsMedia`;
-  app.innerHTML = `
-    <section class="card">
-      <h1>Search results for "${escapeHtml(q)}"</h1>
-      <div id="searchGrid" class="grid"></div>
-    </section>
-  `;
+  document.title = `Search: ${q} — NerdsMeida`;
+  app.innerHTML = `<section class="card"><h1>Search results for "${escapeHtml(q)}"</h1><div id="searchGrid" class="grid"></div></section>`;
   const grid = document.getElementById('searchGrid');
   items.forEach(it => {
     const el = document.createElement('div');
     el.className = 'card';
-    if (it.title) {
-      el.innerHTML = `<h3>${escapeHtml(it.title)}</h3><p class="meta">${it.date || ''}</p>`;
-    }
+    if (it.title) el.innerHTML = `<h3>${escapeHtml(it.title)}</h3><p class="meta">${it.date || ''}</p>`;
     grid.appendChild(el);
   });
 }
 
 // --------- App init ---------
-
 let NEWS = [];
 let GALLERY = [];
 let VIDEOS = [];
@@ -334,46 +251,22 @@ async function init() {
   }
 
   const SAMPLE_NEWS = await loadJSON('data/news.json', [
-    {
-      id: 'n1',
-      title: 'New RPG announcement shakes the community',
-      slug: 'rpg-announced',
-      date: '2025-06-01',
-      excerpt: 'A new open-world RPG announces its systems and trailer.',
-      content: '<p>Full article content goes here.</p>',
-      author: 'Editor',
-      thumbnail: null
-    }
+    { id: 'n1', title: 'New RPG announcement shakes the community', slug: 'rpg-announced', date: '2025-06-01', excerpt: 'A new open-world RPG announces...', content: '<p>Full article content goes here.</p>', author: 'Editor' }
   ]);
 
   const SAMPLE_GALLERY = await loadJSON('data/gallery.json', [
-    {
-      id: 'g1',
-      type: 'image',
-      title: 'Epic Boss Fight',
-      src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="%23081018"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23fff" font-size="28">Sample Image</text></svg>',
-      alt: 'Sample placeholder image',
-      desc: 'A dramatic boss encounter',
-      date: '2025-05-20'
-    }
+    { id: 'g1', type: 'image', title: 'Epic Boss Fight', src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="%23081018"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23fff" font-size="28">Sample Image</text></svg>', alt: 'Sample placeholder image', desc: 'A dramatic boss encounter' }
   ]);
 
   const SAMPLE_VIDEOS = await loadJSON('data/videos.json', [
-    {
-      id: 'v1',
-      title: 'Top 10 Indie Games',
-      slug: 'top-10-indie',
-      date: '2025-05-20',
-      thumb: '',
-      src: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      excerpt: 'A quick roundup of top indie titles.'
-    }
+    { id: 'v1', title: 'Top 10 Indie Games', slug: 'top-10-indie', date: '2025-05-20', thumb: '', src: 'https://www.w3schools.com/html/mov_bbb.mp4', excerpt: 'A quick roundup of top indie titles.' }
   ]);
 
   NEWS = [...SAMPLE_NEWS, ...readStored(STORAGE_KEYS.news, [])];
   GALLERY = [...SAMPLE_GALLERY, ...readStored(STORAGE_KEYS.gallery, [])];
   VIDEOS = [...SAMPLE_VIDEOS, ...readStored(STORAGE_KEYS.videos, [])];
 
+  // make nav toggle work
   document.querySelector('.nav-toggle').addEventListener('click', e => {
     const ul = document.getElementById('nav-list');
     const expanded = e.currentTarget.getAttribute('aria-expanded') === 'true';
@@ -381,17 +274,16 @@ async function init() {
     ul.style.display = expanded ? 'none' : 'flex';
   });
 
+  // search
   document.getElementById('searchInput').addEventListener('input', e => {
     const q = e.target.value.toLowerCase().trim();
-    if (!q) {
-      navigate();
-      return;
-    }
+    if (!q) { navigate(); return; }
     const results = NEWS.filter(n => n.title.toLowerCase().includes(q))
       .concat(VIDEOS.filter(v => v.title.toLowerCase().includes(q)));
     renderSearchResults(results, q);
   });
 
+  // start routing
   navigate();
 }
 
