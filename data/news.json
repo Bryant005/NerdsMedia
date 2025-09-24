@@ -1,22 +1,22 @@
 [
   {
-    "id":"n1",
-    "title":"New RPG announcement shakes the community",
-    "slug":"rpg-announced",
-    "date":"2025-06-01",
-    "thumbnail": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450'><rect width='100%' height='100%' fill='%231a202c'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-size='28'>New RPG</text></svg>",
-    "excerpt":"A new open-world RPG announces its systems and trailer.",
-    "content":"<p> Hello everyone my name is markiplirer and welcome to five nights at Freaddys. This game just came out and you guys wanted me to play it. I donn't want this game is but Yummymash said it was a really fun game so!</p>",
-    "author":"Editor"
+    "id": "n3",
+    "title": "My Awesome New Article",
+    "slug": "my-awesome-article",
+    "date": "2025-09-24",
+    "thumbnail": "images/my-cool-article.jpg",
+    "excerpt": "This is a short summary of my awesome new article.",
+    "content": "<p>This is the full content of the article. You can have multiple paragraphs.</p><p>This is a second paragraph.</p>",
+    "author": "Your Name"
   },
   {
-    "id":"n2",
-    "title":"Patch notes for MegaShooter 2.4",
-    "slug":"megashooter-patch-2-4",
-    "date":"2025-06-03",
-    "thumbnail": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450'><rect width='100%' height='100%' fill='%231a202c'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-size='28'>Patch 2.4</text></svg>",
-    "excerpt":"Balance changes, new map, and bug fixes.",
-    "content":"<p>Major balance changes and the new seasonal map...</p>",
-    "author":"NewsBot"
+    "id": "n1",
+    "title": "New RPG announcement shakes the community",
+    "slug": "rpg-announced",
+    "date": "2025-06-01",
+    "thumbnail": "data:image/svg+xml;utf8,...",
+    "excerpt": "A new open-world RPG announces its systems and trailer.",
+    "content": "<p>The studio released a cinematic trailer and details...</p>",
+    "author": "Editor"
   }
 ]
