@@ -75,6 +75,8 @@ function renderHome() {
           <form id="newsForm">
             <label for="nTitle">Title</label>
             <input id="nTitle" required>
+            <label for="nThumb">Thumbnail Image</label>
+            <input id="nThumb" type="file" accept="image/*">
             <label for="nContent">Content (HTML allowed)</label>
             <textarea id="nContent" rows="6"></textarea>
             <label for="nAuthor">Author</label>
@@ -114,19 +116,31 @@ function renderHome() {
   const newsList = document.getElementById('newsList');
   NEWS.slice().reverse().slice(0, 6).forEach(n => {
     const el = document.createElement('article');
-    el.className = 'card small';
-    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
+    el.className = 'card news-card small';
+    el.innerHTML = `
+      ${n.thumbnail ? `<img src="${n.thumbnail}" alt="" class="news-thumbnail">` : ''}
+      <div class="news-card-content">
+        <h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3>
+        <p class="meta">${n.date} • ${n.author || 'Community'}</p>
+      </div>`;
     newsList.appendChild(el);
   });
 
   // wire forms
-  document.getElementById('newsForm').addEventListener('submit', e => {
+  document.getElementById('newsForm').addEventListener('submit', async e => {
     e.preventDefault();
     const title = document.getElementById('nTitle').value.trim();
     const content = document.getElementById('nContent').value.trim();
     const author = document.getElementById('nAuthor').value.trim() || 'Community';
+    const file = document.getElementById('nThumb').files[0];
     if (!title) return alert('Title required');
-    const item = { id: 'n' + Date.now(), title, content, excerpt: excerptFrom(content), date: new Date().toISOString().slice(0, 10), author };
+
+    let thumbnail = '';
+    if (file) {
+      thumbnail = await fileToDataURL(file);
+    }
+    
+    const item = { id: 'n' + Date.now(), title, content, thumbnail, excerpt: excerptFrom(content), date: new Date().toISOString().slice(0, 10), author };
     NEWS.push(item);
     writeStored(STORAGE_KEYS.news, NEWS);
     alert('Published locally. To publish globally, add your news.json file to repo/data.');
@@ -170,8 +184,14 @@ function renderNewsList() {
   NEWS.slice().reverse().forEach(n => {
     const el = document.createElement('article');
     el.setAttribute('role', 'listitem');
-    el.className = 'card';
-    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
+    el.className = 'card news-card';
+    el.innerHTML = `
+      ${n.thumbnail ? `<img src="${n.thumbnail}" alt="" class="news-thumbnail">` : ''}
+      <div class="news-card-content">
+        <h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3>
+        <p class="meta">${n.date} • ${n.author || 'Community'}</p>
+        <p>${n.excerpt || excerptFrom(n.content) || ''}</p>
+      </div>`;
     grid.appendChild(el);
   });
 }
@@ -180,7 +200,13 @@ function renderNewsPost(id) {
   const post = NEWS.find(n => n.id === id);
   if (!post) return renderNotFound();
   document.title = `${post.title} — NerdsMedia`;
-  app.innerHTML = `<article class="card"><h1>${escapeHtml(post.title)}</h1><p class="meta">${post.date} • ${post.author || 'Community'}</p><div class="content">${post.content || ''}</div></article>`;
+  app.innerHTML = `
+    <article class="card">
+      ${post.thumbnail ? `<img src="${post.thumbnail}" alt="${escapeHtml(post.title)}" class="post-thumbnail">` : ''}
+      <h1>${escapeHtml(post.title)}</h1>
+      <p class="meta">${post.date} • ${post.author || 'Community'}</p>
+      <div class="content">${post.content || ''}</div>
+    </article>`;
 }
 
 function renderVideos() {
