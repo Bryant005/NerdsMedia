@@ -40,18 +40,13 @@ function fileToDataURL(file) {
   });
 }
 
-// --- NEW HELPER FUNCTION ---
-// This function checks the thumbnail value and constructs the correct path.
 function getImagePath(thumbnailValue) {
-  if (!thumbnailValue) return ''; // Return empty if no thumbnail is provided
-  // If it's a full URL (data or http), use it as is.
+  if (!thumbnailValue) return '';
   if (thumbnailValue.startsWith('data:') || thumbnailValue.startsWith('http')) {
     return thumbnailValue;
   }
-  // Otherwise, assume it's in the 'images' folder.
   return `images/${thumbnailValue}`;
 }
-// --- END NEW HELPER FUNCTION ---
 
 
 // router
@@ -131,7 +126,6 @@ function renderHome() {
   NEWS.slice().reverse().slice(0, 6).forEach(n => {
     const el = document.createElement('article');
     el.className = 'card news-card small';
-    // --- UPDATED TO USE getImagePath ---
     el.innerHTML = `
       ${n.thumbnail ? `<img src="${getImagePath(n.thumbnail)}" alt="" class="news-thumbnail">` : ''}
       <div class="news-card-content">
@@ -200,7 +194,6 @@ function renderNewsList() {
     const el = document.createElement('article');
     el.setAttribute('role', 'listitem');
     el.className = 'card news-card';
-    // --- UPDATED TO USE getImagePath ---
     el.innerHTML = `
       ${n.thumbnail ? `<img src="${getImagePath(n.thumbnail)}" alt="" class="news-thumbnail">` : ''}
       <div class="news-card-content">
@@ -216,7 +209,6 @@ function renderNewsPost(id) {
   const post = NEWS.find(n => n.id === id);
   if (!post) return renderNotFound();
   document.title = `${post.title} — NerdsMedia`;
-  // --- UPDATED TO USE getImagePath ---
   app.innerHTML = `
     <article class="card">
       ${post.thumbnail ? `<img src="${getImagePath(post.thumbnail)}" alt="${escapeHtml(post.title)}" class="post-thumbnail">` : ''}
@@ -293,6 +285,7 @@ async function init() {
     }
   }
 
+  // --- FILE PATHS CORRECTED TO INCLUDE 'data/' PREFIX ---
   const SAMPLE_NEWS = await loadJSON('data/news.json', [
     { id: 'n1', title: 'New RPG announcement shakes the community', slug: 'rpg-announced', date: '2025-06-01', excerpt: 'A new open-world RPG announces...', content: '<p>Full article content goes here.</p>', author: 'Editor' }
   ]);
