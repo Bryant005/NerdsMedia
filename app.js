@@ -59,22 +59,18 @@ const routes = {
   about: renderAbout
 };
 
-
-// --- THIS IS THE CORRECTED ROUTER LOGIC ---
 function navigate() {
   const hash = location.hash.replace('#', '') || 'home';
-  const [path, id] = hash.split('/'); // Example: 'news', 'n1'
+  const [path, id] = hash.split('/');
 
   let routeKey = path;
-  // If the path is 'news' AND an ID exists, the real route is 'news-post'
   if (path === 'news' && id) {
     routeKey = 'news-post';
   }
 
   const pageRenderer = routes[routeKey] || renderNotFound;
-  pageRenderer(id); // Call the correct rendering function
+  pageRenderer(id);
 }
-// --- END OF CORRECTION ---
 
 
 // --------- Rendering functions ---------
@@ -229,6 +225,7 @@ function renderNewsPost(id) {
     </article>`;
 }
 
+// --- THIS FUNCTION IS NOW UPDATED FOR YOUTUBE EMBEDS ---
 function renderVideos() {
   document.title = 'NerdsMedia — Videos';
   app.innerHTML = `<section class="card"><h1 class="headline">Videos</h1><div id="videoGrid" class="grid"></div></section>`;
@@ -236,7 +233,29 @@ function renderVideos() {
   VIDEOS.slice().reverse().forEach(v => {
     const el = document.createElement('div');
     el.className = 'card';
-    el.innerHTML = `<h3>${escapeHtml(v.title)}</h3><div class="video-thumb">${v.src ? `<video controls src="${v.src}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"></video>` : ''}</div><p class="meta">${v.date}</p>`;
+
+    let videoPlayer = '';
+    // If a youtubeId exists, create an iframe embed.
+    if (v.youtubeId) {
+      videoPlayer = `
+        <iframe 
+          style="width: 100%; height: 160px; border: 0; border-radius: 6px;"
+          src="https://www.youtube.com/embed/${v.youtubeId}" 
+          title="${escapeHtml(v.title)}" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>`;
+    } 
+    // Otherwise, use the old <video> tag for direct files.
+    else if (v.src) {
+      videoPlayer = `<video controls src="${v.src}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"></video>`;
+    }
+
+    el.innerHTML = `
+      <h3>${escapeHtml(v.title)}</h3>
+      <div class="video-thumb">${videoPlayer}</div>
+      <p class="meta">${v.date || ''}</p>`;
     grid.appendChild(el);
   });
 }
@@ -250,7 +269,8 @@ function renderGallery() {
     el.className = 'card';
     el.setAttribute('role', 'listitem');
     if (it.type === 'image') {
-      el.innerHTML = `<img src="${it.src}" alt="${escapeHtml(it.alt || it.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"><figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
+      // Use getImagePath for gallery images as well
+      el.innerHTML = `<img src="${getImagePath(it.src)}" alt="${escapeHtml(it.alt || it.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"><figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
     } else {
       el.innerHTML = `<figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
     }
