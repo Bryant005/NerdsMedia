@@ -1,4 +1,3 @@
-/* styles.css — modern, gaming-themed, accessible */
 :root {
   --bg: #0b0f14;
   --card: #0f1720;
@@ -20,7 +19,7 @@ html, body {
   margin: 0;
   font-family: var(--font-sans);
   background: linear-gradient(180deg, #071017 0%, var(--bg) 100%);
-  color: #e6eef6; /* light text on dark background */
+  color: #e6eef6;
   line-height: 1.6;
 }
 
@@ -137,53 +136,14 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.small {
-  font-size: 0.9rem;
-}
-
-form .row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: transparent;
-  color: inherit;
-}
-
-button {
-  background: var(--accent);
-  border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  color: #071017;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-button[disabled] {
-  opacity: 0.6;
+  color: var(--muted);
 }
 
 footer {
   margin-top: 36px;
   padding: 16px;
   color: var(--muted);
+  text-align: center;
 }
 
 @media (max-width: 800px) {
