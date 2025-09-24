@@ -117,7 +117,6 @@ function renderHome() {
   NEWS.slice().reverse().slice(0, 6).forEach(n => {
     const el = document.createElement('article');
     el.className = 'card news-card small';
-    // --- CHANGE IS HERE --- Added target="_blank" to the link
     el.innerHTML = `
       ${n.thumbnail ? `<img src="${n.thumbnail}" alt="" class="news-thumbnail">` : ''}
       <div class="news-card-content">
@@ -186,7 +185,6 @@ function renderNewsList() {
     const el = document.createElement('article');
     el.setAttribute('role', 'listitem');
     el.className = 'card news-card';
-    // --- CHANGE IS HERE --- Added target="_blank" to the link
     el.innerHTML = `
       ${n.thumbnail ? `<img src="${n.thumbnail}" alt="" class="news-thumbnail">` : ''}
       <div class="news-card-content">
@@ -278,15 +276,15 @@ async function init() {
     }
   }
 
-  const SAMPLE_NEWS = await loadJSON('news.json', [
+  const SAMPLE_NEWS = await loadJSON('data/news.json', [
     { id: 'n1', title: 'New RPG announcement shakes the community', slug: 'rpg-announced', date: '2025-06-01', excerpt: 'A new open-world RPG announces...', content: '<p>Full article content goes here.</p>', author: 'Editor' }
   ]);
 
-  const SAMPLE_GALLERY = await loadJSON('gallery.json', [
+  const SAMPLE_GALLERY = await loadJSON('data/gallery.json', [
     { id: 'g1', type: 'image', title: 'Epic Boss Fight', src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="%23081018"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23fff" font-size="28">Sample Image</text></svg>', alt: 'Sample placeholder image', desc: 'A dramatic boss encounter' }
   ]);
 
-  const SAMPLE_VIDEOS = await loadJSON('videos.json', [
+  const SAMPLE_VIDEOS = await loadJSON('data/videos.json', [
     { id: 'v1', title: 'Top 10 Indie Games', slug: 'top-10-indie', date: '2025-05-20', thumb: '', src: 'https://www.w3schools.com/html/mov_bbb.mp4', excerpt: 'A quick roundup of top indie titles.' }
   ]);
 
