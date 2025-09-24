@@ -59,14 +59,25 @@ const routes = {
   about: renderAbout
 };
 
+
+// --- THIS IS THE CORRECTED ROUTER LOGIC ---
 function navigate() {
   const hash = location.hash.replace('#', '') || 'home';
-  const [route, id] = hash.split('/');
-  const page = routes[route] || renderNotFound;
-  page(id);
-}
+  const [path, id] = hash.split('/'); // Example: 'news', 'n1'
 
-// --------- Rendering functions (same as before) ---------
+  let routeKey = path;
+  // If the path is 'news' AND an ID exists, the real route is 'news-post'
+  if (path === 'news' && id) {
+    routeKey = 'news-post';
+  }
+
+  const pageRenderer = routes[routeKey] || renderNotFound;
+  pageRenderer(id); // Call the correct rendering function
+}
+// --- END OF CORRECTION ---
+
+
+// --------- Rendering functions ---------
 function renderHome() {
   document.title = 'NerdMedia — Home';
   app.innerHTML = `
@@ -285,7 +296,6 @@ async function init() {
     }
   }
 
-  // --- FILE PATHS CORRECTED TO INCLUDE 'data/' PREFIX ---
   const SAMPLE_NEWS = await loadJSON('data/news.json', [
     { id: 'n1', title: 'New RPG announcement shakes the community', slug: 'rpg-announced', date: '2025-06-01', excerpt: 'A new open-world RPG announces...', content: '<p>Full article content goes here.</p>', author: 'Editor' }
   ]);
