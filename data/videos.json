@@ -1,9 +1,6 @@
-[
-  {"id":"v1",
-    "title":"Top 10 Indie Games",
-    "slug":"top-10-indie",
-    "date":"2025-05-20",
-    "thumb":"",
-    "src":"https://www.youtube.com/watch?v=g4uOsS0FsEs",
-    "excerpt":"A quick roundup of top indie titles."}
-]
+{
+  "id":"v1",
+  "title":"Top 10 Indie Games",
+  "date":"2025-05-20",
+  "youtubeId":"dQw4w9WgXcQ"
+}
