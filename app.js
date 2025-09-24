@@ -115,7 +115,7 @@ function renderHome() {
   NEWS.slice().reverse().slice(0, 6).forEach(n => {
     const el = document.createElement('article');
     el.className = 'card small';
-    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
+    el.innerHTML = `<h3><a href="#news/${n.id}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
     newsList.appendChild(el);
   });
 
@@ -171,7 +171,7 @@ function renderNewsList() {
     const el = document.createElement('article');
     el.setAttribute('role', 'listitem');
     el.className = 'card';
-    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
+    el.innerHTML = `<h3><a href="#news/${n.id}" target="_blank" rel="noopener noreferrer">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
     grid.appendChild(el);
   });
 }
@@ -214,7 +214,7 @@ function renderGallery() {
 
 function renderAbout() {
   document.title = 'About — NerdsMeida';
-  app.innerHTML = `<section class="card"><h1 class="headline">About</h1><p>This is a community-first gaming news site built as a static template you can host on GitHub Pages. It uses client-side storage to allow local publishing and uploads.</p></section>`;
+  app.innerHTML = `<section class="card"><h1>About</h1><p>This is a community-first gaming news site built as a static template you can host on GitHub Pages. It uses client-side storage to allow local publishing and uploads.</p></section>`;
 }
 
 function renderNotFound() {
