@@ -40,12 +40,12 @@ function fileToDataURL(file) {
   });
 }
 
-function getImagePath(thumbnailValue) {
-  if (!thumbnailValue) return '';
-  if (thumbnailValue.startsWith('data:') || thumbnailValue.startsWith('http')) {
-    return thumbnailValue;
+function getImagePath(srcValue) {
+  if (!srcValue) return '';
+  if (srcValue.startsWith('data:') || srcValue.startsWith('http')) {
+    return srcValue;
   }
-  return `images/${thumbnailValue}`;
+  return `images/${srcValue}`;
 }
 
 
@@ -225,7 +225,6 @@ function renderNewsPost(id) {
     </article>`;
 }
 
-// --- THIS FUNCTION IS NOW UPDATED FOR YOUTUBE EMBEDS ---
 function renderVideos() {
   document.title = 'NerdsMedia — Videos';
   app.innerHTML = `<section class="card"><h1 class="headline">Videos</h1><div id="videoGrid" class="grid"></div></section>`;
@@ -235,7 +234,6 @@ function renderVideos() {
     el.className = 'card';
 
     let videoPlayer = '';
-    // If a youtubeId exists, create an iframe embed.
     if (v.youtubeId) {
       videoPlayer = `
         <iframe 
@@ -247,7 +245,6 @@ function renderVideos() {
           allowfullscreen>
         </iframe>`;
     } 
-    // Otherwise, use the old <video> tag for direct files.
     else if (v.src) {
       videoPlayer = `<video controls src="${v.src}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"></video>`;
     }
@@ -325,7 +322,7 @@ async function init() {
   ]);
 
   const SAMPLE_VIDEOS = await loadJSON('data/videos.json', [
-    { id: 'v1', title: 'Top 10 Indie Games', slug: 'top-10-indie', date: '2025-05-20', thumb: '', src: 'https://www.w3schools.com/html/mov_bbb.mp4', excerpt: 'A quick roundup of top indie titles.' }
+    { id: 'v1', title: 'Top 10 Indie Games', date: '2025-05-20', youtubeId: 'dQw4w9WgXcQ' }
   ]);
 
   NEWS = [...SAMPLE_NEWS, ...readStored(STORAGE_KEYS.news, [])];
@@ -343,7 +340,11 @@ async function init() {
   // search
   document.getElementById('searchInput').addEventListener('input', e => {
     const q = e.target.value.toLowerCase().trim();
-    if (!q) { navigate(); return; }
+    if (!q) { 
+      // When search is cleared, navigate back to the previous hash or home
+      navigate(); 
+      return; 
+    }
     const results = NEWS.filter(n => n.title.toLowerCase().includes(q))
       .concat(VIDEOS.filter(v => v.title.toLowerCase().includes(q)));
     renderSearchResults(results, q);
