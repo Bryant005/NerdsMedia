@@ -40,6 +40,20 @@ function fileToDataURL(file) {
   });
 }
 
+// --- NEW HELPER FUNCTION ---
+// This function checks the thumbnail value and constructs the correct path.
+function getImagePath(thumbnailValue) {
+  if (!thumbnailValue) return ''; // Return empty if no thumbnail is provided
+  // If it's a full URL (data or http), use it as is.
+  if (thumbnailValue.startsWith('data:') || thumbnailValue.startsWith('http')) {
+    return thumbnailValue;
+  }
+  // Otherwise, assume it's in the 'images' folder.
+  return `images/${thumbnailValue}`;
+}
+// --- END NEW HELPER FUNCTION ---
+
+
 // router
 const routes = {
   home: renderHome,
@@ -117,8 +131,9 @@ function renderHome() {
   NEWS.slice().reverse().slice(0, 6).forEach(n => {
     const el = document.createElement('article');
     el.className = 'card news-card small';
+    // --- UPDATED TO USE getImagePath ---
     el.innerHTML = `
-      ${n.thumbnail ? `<img src="${n.thumbnail}" alt="" class="news-thumbnail">` : ''}
+      ${n.thumbnail ? `<img src="${getImagePath(n.thumbnail)}" alt="" class="news-thumbnail">` : ''}
       <div class="news-card-content">
         <h3><a href="#news/${n.id}" target="_blank">${escapeHtml(n.title)}</a></h3>
         <p class="meta">${n.date} • ${n.author || 'Community'}</p>
@@ -185,8 +200,9 @@ function renderNewsList() {
     const el = document.createElement('article');
     el.setAttribute('role', 'listitem');
     el.className = 'card news-card';
+    // --- UPDATED TO USE getImagePath ---
     el.innerHTML = `
-      ${n.thumbnail ? `<img src="${n.thumbnail}" alt="" class="news-thumbnail">` : ''}
+      ${n.thumbnail ? `<img src="${getImagePath(n.thumbnail)}" alt="" class="news-thumbnail">` : ''}
       <div class="news-card-content">
         <h3><a href="#news/${n.id}" target="_blank">${escapeHtml(n.title)}</a></h3>
         <p class="meta">${n.date} • ${n.author || 'Community'}</p>
@@ -200,9 +216,10 @@ function renderNewsPost(id) {
   const post = NEWS.find(n => n.id === id);
   if (!post) return renderNotFound();
   document.title = `${post.title} — NerdsMedia`;
+  // --- UPDATED TO USE getImagePath ---
   app.innerHTML = `
     <article class="card">
-      ${post.thumbnail ? `<img src="${post.thumbnail}" alt="${escapeHtml(post.title)}" class="post-thumbnail">` : ''}
+      ${post.thumbnail ? `<img src="${getImagePath(post.thumbnail)}" alt="${escapeHtml(post.title)}" class="post-thumbnail">` : ''}
       <h1>${escapeHtml(post.title)}</h1>
       <p class="meta">${post.date} • ${post.author || 'Community'}</p>
       <div class="content">${post.content || ''}</div>
