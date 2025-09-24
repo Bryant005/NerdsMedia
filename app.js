@@ -1,291 +1,217 @@
-/* app.js — routing, rendering, and client-side "serverless" content storage
-   Features:
-   - Hash routing for 5 pages (home, news, videos, gallery, about)
-   - Loads sample JSON files (local copies provided) then merges with localStorage user uploads
-   - Allows uploading images/videos and publishing news posts without a server (stored in localStorage)
-   - Accessibility hints & simple SEO-friendly markup
-*/
+// ==================
+// Simple SPA for GamingNewsSite
+// ==================
 
 const app = document.getElementById('app');
-const yearEl = document.getElementById('year');
-yearEl.textContent = new Date().getFullYear();
 
-const STORAGE_KEYS = { news: 'gns_news', gallery: 'gns_gallery', videos: 'gns_videos' };
-
-// utility functions
-function readStored(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (e) {
-    return fallback;
-  }
-}
-function writeStored(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
-function escapeHtml(s) {
-  if (!s) return '';
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-function excerptFrom(html) {
-  return (html || '').replace(/<[^>]*>/g, '').slice(0, 200) + '...';
-}
-function fileToDataURL(file) {
-  return new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onload = () => res(fr.result);
-    fr.onerror = rej;
-    fr.readAsDataURL(file);
-  });
-}
-
-// router
-const routes = {
-  home: renderHome,
-  news: renderNewsList,
-  'news-post': renderNewsPost,
-  videos: renderVideos,
-  gallery: renderGallery,
-  about: renderAbout
+// ---- Storage Keys ----
+const STORAGE_KEYS = {
+  news: 'gamingNews',
+  videos: 'gamingVideos',
+  gallery: 'gamingGallery'
 };
 
-function navigate() {
-  const hash = location.hash.replace('#', '') || 'home';
-  const [route, id] = hash.split('/');
-  const page = routes[route] || renderNotFound;
-  page(id);
+// ---- Demo Data (loads only once if localStorage is empty) ----
+const DEMO_NEWS = [
+  {
+    id: 'n1',
+    title: 'Elder Scrolls VI Rumors',
+    author: 'Admin',
+    date: '2025-09-24',
+    content: `<p>Bethesda may finally reveal Elder Scrolls VI gameplay in the coming months.
+    Fans worldwide are buzzing about potential release dates and locations.</p>`
+  },
+  {
+    id: 'n2',
+    title: 'Cyberpunk 2077 Gets Another Patch',
+    author: 'Editor',
+    date: '2025-09-23',
+    content: `<p>The futuristic RPG keeps improving with new AI behaviors, bug fixes, 
+    and added features. CD Projekt Red has shown commitment to the community.</p>`
+  }
+];
+
+const DEMO_VIDEOS = [
+  { id: 'v1', title: 'Top 10 Games 2025', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+  { id: 'v2', title: 'IGN-style Game Review', url: 'https://www.youtube.com/embed/oHg5SJYRHA0' }
+];
+
+const DEMO_GALLERY = [
+  { id: 'g1', title: 'Epic Screenshot', img: 'https://placehold.co/400x250', link: '#', desc: 'Placeholder screenshot' },
+  { id: 'g2', title: 'Character Art', img: 'https://placehold.co/400x250', link: '#', desc: 'Fan art example' }
+];
+
+// ---- LocalStorage Helpers ----
+function loadStored(key, fallback){
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : fallback;
+}
+function saveStored(key, data){
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-// --------- Rendering functions (same as before) ---------
-function renderHome() {
+// ---- In-Memory State ----
+let NEWS = loadStored(STORAGE_KEYS.news, DEMO_NEWS);
+let VIDEOS = loadStored(STORAGE_KEYS.videos, DEMO_VIDEOS);
+let GALLERY = loadStored(STORAGE_KEYS.gallery, DEMO_GALLERY);
+
+// ---- Router ----
+function router(){
+  const hash = location.hash.slice(1); // remove #
+  if(!hash) return renderHome();
+
+  const [route, param] = hash.split('/');
+  switch(route){
+    case 'news':
+      param ? renderNewsPost(param) : renderNewsList();
+      break;
+    case 'videos':
+      renderVideos();
+      break;
+    case 'gallery':
+      renderGallery();
+      break;
+    case 'about':
+      renderAbout();
+      break;
+    default:
+      renderNotFound();
+  }
+}
+window.addEventListener('hashchange', router);
+window.addEventListener('DOMContentLoaded', router);
+
+// ---- Render Functions ----
+
+// Home
+function renderHome(){
   document.title = 'GamingNewsSite — Home';
   app.innerHTML = `
-    <section class="hero">
-      <div class="card">
-        <h1 class="headline">Latest Gaming News</h1>
-        <p class="meta">Fresh community-driven stories and editor picks.</p>
-        <div id="newsList"></div>
-      </div>
-      <aside class="card">
-        <h3>Upload & Publish</h3>
-        <p class="small">Upload images, videos, or post a news article — stored locally and shown to everyone who visits this site on this device (or uploaded files embedded in your repo will be used on GitHub Pages).</p>
-        <details>
-          <summary>Publish News</summary>
-          <form id="newsForm">
-            <label for="nTitle">Title</label>
-            <input id="nTitle" required>
-            <label for="nContent">Content (HTML allowed)</label>
-            <textarea id="nContent" rows="6"></textarea>
-            <label for="nAuthor">Author</label>
-            <input id="nAuthor" placeholder="Your name">
-            <button type="submit">Publish</button>
-          </form>
-        </details>
-        <details>
-          <summary>Upload Image to Gallery</summary>
-          <form id="imgForm">
-            <label for="imgFile">Choose image</label>
-            <input id="imgFile" type="file" accept="image/*">
-            <label for="imgTitle">Title</label>
-            <input id="imgTitle">
-            <label for="imgDesc">Description</label>
-            <input id="imgDesc">
-            <button type="submit">Upload Image</button>
-          </form>
-        </details>
-        <details>
-          <summary>Upload Video</summary>
-          <form id="videoForm">
-            <label for="videoFile">Video file (or leave blank and add link)</label>
-            <input id="videoFile" type="file" accept="video/*">
-            <label for="videoLink">Or external video link</label>
-            <input id="videoLink" placeholder="https://...">
-            <label for="videoTitle">Title</label>
-            <input id="videoTitle">
-            <button type="submit">Add Video</button>
-          </form>
-        </details>
-      </aside>
+    <section class="card">
+      <h1 class="headline">Welcome to GamingNewsSite</h1>
+      <p>Your hub for gaming news, reviews, videos, and galleries — inspired by IGN but with our own twist!</p>
+      <p><a href="#news" class="btn">Read the Latest News</a></p>
+    </section>
+  `;
+}
+
+// News List
+function renderNewsList(){
+  document.title = 'GamingNewsSite — News';
+  app.innerHTML = `
+    <section class="card">
+      <h1 class="headline">News</h1>
+      <div id="newsGrid" class="grid" role="list"></div>
     </section>
   `;
 
-  // populate news list
-  const newsList = document.getElementById('newsList');
-  NEWS.slice().reverse().slice(0, 6).forEach(n => {
-    const el = document.createElement('article');
-    el.className = 'card small';
-    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
-    newsList.appendChild(el);
-  });
-
-  // wire forms
-  document.getElementById('newsForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const title = document.getElementById('nTitle').value.trim();
-    const content = document.getElementById('nContent').value.trim();
-    const author = document.getElementById('nAuthor').value.trim() || 'Community';
-    if (!title) return alert('Title required');
-    const item = { id: 'n' + Date.now(), title, content, excerpt: excerptFrom(content), date: new Date().toISOString().slice(0, 10), author };
-    NEWS.push(item);
-    writeStored(STORAGE_KEYS.news, NEWS);
-    alert('Published locally. To publish globally, add your news.json file to repo/data.');
-    location.hash = '#news';
-  });
-
-  document.getElementById('imgForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const file = document.getElementById('imgFile').files[0];
-    if (!file) return alert('Choose an image');
-    const title = document.getElementById('imgTitle').value || file.name;
-    const desc = document.getElementById('imgDesc').value || '';
-    const b64 = await fileToDataURL(file);
-    const item = { id: 'g' + Date.now(), type: 'image', title, src: b64, alt: title, desc, date: new Date().toISOString().slice(0, 10) };
-    GALLERY.push(item);
-    writeStored(STORAGE_KEYS.gallery, GALLERY);
-    alert('Image uploaded locally and added to gallery');
-    location.hash = '#gallery';
-  });
-
-  document.getElementById('videoForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const file = document.getElementById('videoFile').files[0];
-    const link = document.getElementById('videoLink').value.trim();
-    const title = document.getElementById('videoTitle').value || (file ? file.name : link);
-    if (!file && !link) return alert('Provide a video file or link');
-    let src = link;
-    if (file) { src = await fileToDataURL(file); }
-    const item = { id: 'v' + Date.now(), title, src, date: new Date().toISOString().slice(0, 10), excerpt: '' };
-    VIDEOS.push(item);
-    writeStored(STORAGE_KEYS.videos, VIDEOS);
-    alert('Video added locally');
-    location.hash = '#videos';
-  });
-}
-
-function renderNewsList() {
-  document.title = 'GamingNewsSite — News';
-  app.innerHTML = `<section class="card"><h1 class="headline">News</h1><div id="newsGrid" class="grid" role="list"></div></section>`;
   const grid = document.getElementById('newsGrid');
-  NEWS.slice().reverse().forEach(n => {
+  NEWS.slice().reverse().forEach(n=>{
     const el = document.createElement('article');
-    el.setAttribute('role', 'listitem');
-    el.className = 'card';
-    el.innerHTML = `<h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3><p class="meta">${n.date} • ${n.author || 'Community'}</p><p>${n.excerpt || excerptFrom(n.content) || ''}</p>`;
+    el.setAttribute('role','listitem');
+    el.className='card';
+    el.innerHTML = `
+      <h3><a href="#news/${n.id}">${escapeHtml(n.title)}</a></h3>
+      <p class="meta">${n.date} • ${n.author||'Community'}</p>
+      <p>${n.excerpt || excerptFrom(n.content) || ''}</p>
+      <p><a href="#news/${n.id}" class="btn-small">Continue Reading…</a></p>
+    `;
     grid.appendChild(el);
   });
 }
 
-function renderNewsPost(id) {
-  const post = NEWS.find(n => n.id === id);
-  if (!post) return renderNotFound();
+// Single News Post
+function renderNewsPost(id){
+  const post = NEWS.find(n=>n.id === id);
+  if(!post) return renderNotFound();
+
   document.title = `${post.title} — GamingNewsSite`;
-  app.innerHTML = `<article class="card"><h1>${escapeHtml(post.title)}</h1><p class="meta">${post.date} • ${post.author || 'Community'}</p><div class="content">${post.content || ''}</div></article>`;
+  app.innerHTML = `
+    <article class="card">
+      <h1>${escapeHtml(post.title)}</h1>
+      <p class="meta">${post.date} • ${post.author || 'Community'}</p>
+      <div class="content">${post.content || ''}</div>
+      <p><a href="#news" class="back-link">← Back to News</a></p>
+    </article>
+  `;
 }
 
-function renderVideos() {
+// Videos
+function renderVideos(){
   document.title = 'GamingNewsSite — Videos';
-  app.innerHTML = `<section class="card"><h1 class="headline">Videos</h1><div id="videoGrid" class="grid"></div></section>`;
+  app.innerHTML = `
+    <section class="card">
+      <h1 class="headline">Videos</h1>
+      <div class="grid" id="videoGrid"></div>
+    </section>
+  `;
   const grid = document.getElementById('videoGrid');
-  VIDEOS.slice().reverse().forEach(v => {
+  VIDEOS.forEach(v=>{
     const el = document.createElement('div');
-    el.className = 'card';
-    el.innerHTML = `<h3>${escapeHtml(v.title)}</h3><div class="video-thumb">${v.src ? `<video controls src="${v.src}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"></video>` : ''}</div><p class="meta">${v.date}</p>`;
+    el.className='card';
+    el.innerHTML = `
+      <h3>${escapeHtml(v.title)}</h3>
+      <iframe width="100%" height="250" src="${v.url}" frameborder="0" allowfullscreen></iframe>
+    `;
     grid.appendChild(el);
   });
 }
 
-function renderGallery() {
+// Gallery
+function renderGallery(){
   document.title = 'GamingNewsSite — Gallery';
-  app.innerHTML = `<section class="card"><h1 class="headline">Gallery</h1><div id="galleryGrid" class="grid" role="list"></div></section>`;
+  app.innerHTML = `
+    <section class="card">
+      <h1 class="headline">Gallery</h1>
+      <div class="grid" id="galleryGrid"></div>
+    </section>
+  `;
   const grid = document.getElementById('galleryGrid');
-  GALLERY.slice().reverse().forEach(it => {
-    const el = document.createElement('figure');
-    el.className = 'card';
-    el.setAttribute('role', 'listitem');
-    if (it.type === 'image') {
-      el.innerHTML = `<img src="${it.src}" alt="${escapeHtml(it.alt || it.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"><figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
-    } else {
-      el.innerHTML = `<figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
-    }
-    grid.appendChild(el);
-  });
-}
-
-function renderAbout() {
-  document.title = 'About — GamingNewsSite';
-  app.innerHTML = `<section class="card"><h1 class="headline">About</h1><p>This is a community-first gaming news site built as a static template you can host on GitHub Pages. It uses client-side storage to allow local publishing and uploads. See README for deployment steps.</p></section>`;
-}
-
-function renderNotFound() {
-  document.title = 'Not Found — GamingNewsSite';
-  app.innerHTML = `<section class="card"><h1>404 — Not Found</h1><p>The page you're looking for doesn't exist.</p></section>`;
-}
-
-function renderSearchResults(items, q) {
-  document.title = `Search: ${q} — GamingNewsSite`;
-  app.innerHTML = `<section class="card"><h1>Search results for "${escapeHtml(q)}"</h1><div id="searchGrid" class="grid"></div></section>`;
-  const grid = document.getElementById('searchGrid');
-  items.forEach(it => {
+  GALLERY.forEach(g=>{
     const el = document.createElement('div');
-    el.className = 'card';
-    if (it.title) el.innerHTML = `<h3>${escapeHtml(it.title)}</h3><p class="meta">${it.date || ''}</p>`;
+    el.className='card';
+    el.innerHTML = `
+      <img src="${g.img}" alt="${escapeHtml(g.title)}" />
+      <h3>${escapeHtml(g.title)}</h3>
+      <p>${g.desc||''}</p>
+      <p><a href="${g.link}" target="_blank">View More</a></p>
+    `;
     grid.appendChild(el);
   });
 }
 
-// --------- App init ---------
-let NEWS = [];
-let GALLERY = [];
-let VIDEOS = [];
-
-async function init() {
-  async function loadJSON(path, fallback) {
-    try {
-      const res = await fetch(path);
-      if (!res.ok) throw new Error('no file');
-      return await res.json();
-    } catch (e) {
-      return fallback;
-    }
-  }
-
-  const SAMPLE_NEWS = await loadJSON('data/news.json', [
-    { id: 'n1', title: 'New RPG announcement shakes the community', slug: 'rpg-announced', date: '2025-06-01', excerpt: 'A new open-world RPG announces...', content: '<p>Full article content goes here.</p>', author: 'Editor' }
-  ]);
-
-  const SAMPLE_GALLERY = await loadJSON('data/gallery.json', [
-    { id: 'g1', type: 'image', title: 'Epic Boss Fight', src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="%23081018"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23fff" font-size="28">Sample Image</text></svg>', alt: 'Sample placeholder image', desc: 'A dramatic boss encounter' }
-  ]);
-
-  const SAMPLE_VIDEOS = await loadJSON('data/videos.json', [
-    { id: 'v1', title: 'Top 10 Indie Games', slug: 'top-10-indie', date: '2025-05-20', thumb: '', src: 'https://www.w3schools.com/html/mov_bbb.mp4', excerpt: 'A quick roundup of top indie titles.' }
-  ]);
-
-  NEWS = [...SAMPLE_NEWS, ...readStored(STORAGE_KEYS.news, [])];
-  GALLERY = [...SAMPLE_GALLERY, ...readStored(STORAGE_KEYS.gallery, [])];
-  VIDEOS = [...SAMPLE_VIDEOS, ...readStored(STORAGE_KEYS.videos, [])];
-
-  // make nav toggle work
-  document.querySelector('.nav-toggle').addEventListener('click', e => {
-    const ul = document.getElementById('nav-list');
-    const expanded = e.currentTarget.getAttribute('aria-expanded') === 'true';
-    e.currentTarget.setAttribute('aria-expanded', String(!expanded));
-    ul.style.display = expanded ? 'none' : 'flex';
-  });
-
-  // search
-  document.getElementById('searchInput').addEventListener('input', e => {
-    const q = e.target.value.toLowerCase().trim();
-    if (!q) { navigate(); return; }
-    const results = NEWS.filter(n => n.title.toLowerCase().includes(q))
-      .concat(VIDEOS.filter(v => v.title.toLowerCase().includes(q)));
-    renderSearchResults(results, q);
-  });
-
-  // start routing
-  navigate();
+// About
+function renderAbout(){
+  document.title = 'GamingNewsSite — About';
+  app.innerHTML = `
+    <section class="card">
+      <h1 class="headline">About This Site</h1>
+      <p>This is a student project inspired by IGN — a gaming news portal built with plain HTML, CSS, and JS (no server required).</p>
+    </section>
+  `;
 }
 
-window.addEventListener('hashchange', navigate);
-window.addEventListener('load', init);
+// Not Found
+function renderNotFound(){
+  document.title = '404 — GamingNewsSite';
+  app.innerHTML = `
+    <section class="card">
+      <h1>404 — Page Not Found</h1>
+      <p>The page you are looking for does not exist.</p>
+      <p><a href="#">Return Home</a></p>
+    </section>
+  `;
+}
+
+// ---- Utility Functions ----
+function escapeHtml(str){
+  return str ? str.replace(/[&<>'"]/g, c=>({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+  }[c])) : '';
+}
+function excerptFrom(html, length=120){
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const text = tmp.textContent || tmp.innerText || '';
+  return text.length > length ? text.slice(0,length) + '…' : text;
+}
