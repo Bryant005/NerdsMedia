@@ -266,7 +266,6 @@ function renderGallery() {
     el.className = 'card';
     el.setAttribute('role', 'listitem');
     if (it.type === 'image') {
-      // Use getImagePath for gallery images as well
       el.innerHTML = `<img src="${getImagePath(it.src)}" alt="${escapeHtml(it.alt || it.title)}" style="width:100%;height:160px;object-fit:cover;border-radius:6px"><figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
     } else {
       el.innerHTML = `<figcaption><strong>${escapeHtml(it.title)}</strong><p class="small">${escapeHtml(it.desc || '')}</p></figcaption>`;
@@ -309,21 +308,14 @@ async function init() {
       if (!res.ok) throw new Error('no file');
       return await res.json();
     } catch (e) {
+      console.error(`Failed to load ${path}:`, e); // Log error for debugging
       return fallback;
     }
   }
 
-  const SAMPLE_NEWS = await loadJSON('data/news.json', [
-    { id: 'n1', title: 'New RPG announcement shakes the community', slug: 'rpg-announced', date: '2025-06-01', excerpt: 'A new open-world RPG announces...', content: '<p>Full article content goes here.</p>', author: 'Editor' }
-  ]);
-
-  const SAMPLE_GALLERY = await loadJSON('data/gallery.json', [
-    { id: 'g1', type: 'image', title: 'Epic Boss Fight', src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450"><rect width="100%" height="100%" fill="%23081018"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23fff" font-size="28">Sample Image</text></svg>', alt: 'Sample placeholder image', desc: 'A dramatic boss encounter' }
-  ]);
-
-  const SAMPLE_VIDEOS = await loadJSON('data/videos.json', [
-    { id: 'v1', title: 'Top 10 Indie Games', date: '2025-05-20', youtubeId: 'dQw4w9WgXcQ' }
-  ]);
+  const SAMPLE_NEWS = await loadJSON('data/news.json', []);
+  const SAMPLE_GALLERY = await loadJSON('data/gallery.json', []);
+  const SAMPLE_VIDEOS = await loadJSON('data/videos.json', []);
 
   NEWS = [...SAMPLE_NEWS, ...readStored(STORAGE_KEYS.news, [])];
   GALLERY = [...SAMPLE_GALLERY, ...readStored(STORAGE_KEYS.gallery, [])];
@@ -334,14 +326,14 @@ async function init() {
     const ul = document.getElementById('nav-list');
     const expanded = e.currentTarget.getAttribute('aria-expanded') === 'true';
     e.currentTarget.setAttribute('aria-expanded', String(!expanded));
-    ul.style.display = expanded ? 'none' : 'flex';
+    // Correctly toggle flex display for mobile nav
+    ul.style.display = ul.style.display === 'flex' ? 'none' : 'flex';
   });
 
   // search
   document.getElementById('searchInput').addEventListener('input', e => {
     const q = e.target.value.toLowerCase().trim();
     if (!q) { 
-      // When search is cleared, navigate back to the previous hash or home
       navigate(); 
       return; 
     }
