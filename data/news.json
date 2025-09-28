@@ -4,7 +4,7 @@
     "title": "My Awesome New Article",
     "slug": "my-awesome-article",
     "date": "2025-09-24",
-    "thumbnail": "my-cool-article.jpg",
+    "thumbnail": "sonic-racing-cross-world-cover.jpg",
     "excerpt": "This is a short summary of my awesome new article.",
     "content": "<p>This is the full text for the article. When you click the link, this is the text that will appear on the page.</p><p>You can add more paragraphs by using more p tags. This helps with formatting and readability.</p>",
     "author": "Your Name"
@@ -14,7 +14,7 @@
     "title": "New RPG announcement shakes the community",
     "slug": "rpg-announced",
     "date": "2025-06-01",
-    "thumbnail": "data:image/svg+xml;utf8,...",
+    "thumbnail": "sonic-racing-cross-world-cover.jpg",
     "excerpt": "A new open-world RPG announces its systems and trailer.",
     "content": "<p>The studio released a cinematic trailer and details...</p>",
     "author": "Editor"
@@ -24,7 +24,7 @@
   "title": "New Gameplay Trailer Revealed",
   "slug": "gameplay-trailer-reveal",
   "date": "2025-09-24",
-  "thumbnail": "trailer-thumbnail.jpg",
+  "thumbnail": "sonic-racing-cross-world-cover.jpg",
   "excerpt": "A stunning new trailer shows off the game's combat and exploration systems.",
   "content": "<p>The developers released a new trailer today, giving us the best look yet at the game. You can watch it right here:</p><iframe width='560' height='315' src='https://www.youtube.com/embed/dQw4w9WgXcQ' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe><p>The trailer showcases several new environments and highlights the fluid, combo-based combat system that players can look forward to.</p>",
   "author": "Your Name"
