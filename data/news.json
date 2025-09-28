@@ -7,7 +7,7 @@
     "thumbnail": "sonic-racing-cross-world-cover.jpg",
     "excerpt": "This is a short summary of my awesome new article.",
     "content": "<p>This is the full text for the article. When you click the link, this is the text that will appear on the page.</p><p>You can add more paragraphs by using more p tags. This helps with formatting and readability.</p>",
-    "author": "Your Name"
+    "author": "The Guy from Fortnight"
   },
   {
     "id": "n1",
@@ -27,6 +27,6 @@
   "thumbnail": "sonic-racing-cross-world-cover.jpg",
   "excerpt": "A stunning new trailer shows off the game's combat and exploration systems.",
   "content": "<p>The developers released a new trailer today, giving us the best look yet at the game. You can watch it right here:</p><iframe width='560' height='315' src='https://www.youtube.com/embed/EE-xtCF3T94?rel=0' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe><p>The trailer showcases several new environments and highlights the fluid, combo-based combat system that players can look forward to.</p>",
-  "author": "Your Name"
+  "author": "Behind you"
 }
 ]
