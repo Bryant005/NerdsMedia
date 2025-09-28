@@ -1,12 +1,11 @@
 [
   {
-  "id": "g1",
-  "type": "image",
-  "title": "My New Screenshot Title",
-  "src": "sonic-racing-cross-world-cover.jpg",
-  "alt": "A short description of the image for screen readers",
-  "desc": "A longer description that appears below the image.",
-  "date": "2025-09-27"
-},
-  
+    "id": "g1",
+    "type": "image",
+    "title": "My New Screenshot Title",
+    "src": "sonic-racing-cross-world-cover.jpg",
+    "alt": "A short description of the image for screen readers",
+    "desc": "A longer description that appears below the image.",
+    "date": "2025-09-27"
+  }
 ]
