@@ -1,13 +1,12 @@
 [
   {
-    "id":"g1",
-    "slug": "my-awesome-article",
-    "date": "2025-09-24",
-    "thumbnail": "sonic-racing-cross-world-cover.jpg",
-    "excerpt": "This is a short summary of my awesome new article.",
-    "content": "<p>This is the full text for the article. When you click the link, this is the text that will appear on the page.</p><p>You can add more paragraphs by using more p tags. This helps with formatting and readability.</p>",
-    "author": "Your Name"
-  }
+  "id": "g1",
+  "type": "image",
+  "title": "My New Screenshot Title",
+  "src": "sonic-racing-cross-world-cover.jpg",
+  "alt": "A short description of the image for screen readers",
+  "desc": "A longer description that appears below the image.",
+  "date": "2025-09-27"
+},
   
-
 ]
